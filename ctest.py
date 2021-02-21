@@ -46,7 +46,7 @@ def get_file_name() -> str:
     :return: Received file name as string
     """
     parser = ArgumentParser(description="Build & test your C programs")
-    parser.add_argument("file", type=str)
+    parser.add_argument("file", type=str, help="The path to your C file")
     args = parser.parse_args()
     return args.file
 
