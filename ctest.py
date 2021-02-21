@@ -67,7 +67,7 @@ def get_config() -> dict:
 
 def build(file_path, config) -> str:
     """
-    Builld given c file using given config
+    Builds given c file using given config
     :param file_path: A path to file to build
     :param config: A config to use
     :return: A path to built executable
@@ -87,7 +87,13 @@ def build(file_path, config) -> str:
     return executable_path
 
 
-def test(executable_path, tests_path, config):
+def test(executable_path, tests_path, config) -> None:
+    """
+    Test given executable file using tests from tests_path and config
+    :param executable_path: The executable file path
+    :param tests_path: The path to the tests
+    :param config: The configuration
+    """
     print(Colors.ENDC + "Testing", executable_path, "...")
     test_file_regex = compile(config["test_file_regex"])
     done_tests = []
@@ -126,6 +132,15 @@ def test(executable_path, tests_path, config):
 
 
 def single_test(executable_path, test_type, input_file, output_file, config):
+    """
+    Performs a single test on executable file
+    :param executable_path: The path to executable file
+    :param test_type: Test type (pos/neg)
+    :param input_file: Text file with input data
+    :param output_file: Text file with expected output data
+    :param config: Configuration
+    :return:
+    """
     encoding = config["tests_encoding"]
     process = run([executable_path],
                   stdin=open(str(input_file), "r", encoding=encoding),
@@ -142,7 +157,11 @@ def single_test(executable_path, test_type, input_file, output_file, config):
            return_code, output, expected_output, error_output
 
 
-def display_test(test_data):
+def display_test(test_data) -> None:
+    """
+    Displays given test data
+    :param test_data: An array containing index and result of the test
+    """
     index, result = test_data
     success, code, output, expected_output, error_output = result
     print((Colors.OKGREEN if success else Colors.FAIL) + Colors.BOLD +
@@ -157,7 +176,12 @@ def display_test(test_data):
         print(Colors.ENDC + error_output)
 
 
-def coverage(file_path, config):
+def coverage(file_path, config) -> None:
+    """
+    Run coverage meter (usually gcov) for given file
+    :param file_path: A path to file
+    :param config: The configuration
+    """
     print(Colors.ENDC + "Running coverage for", file_path, "...")
     coverage_args = [config["coverage_meter"]]
     coverage_args += config["coverage_meter_args"]
