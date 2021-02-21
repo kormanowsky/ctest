@@ -147,14 +147,15 @@ def single_test(executable_path, test_type, input_file, output_file, config):
                   capture_output=True)
     output = process.stdout.decode(encoding)
     error_output = process.stderr.decode(encoding)
+    expected_output = open(output_file, "r", encoding=encoding) \
+        .read().strip(" \n")
     return_code = process.returncode
     if test_type == "pos" and return_code != 0 or \
             test_type == "neg" and return_code == 0:
-        return False
-    expected_output = open(output_file, "r", encoding=encoding) \
-        .read().strip(" \n")
-    return output == expected_output, \
-           return_code, output, expected_output, error_output
+        success = False
+    else:
+        success = output == expected_output
+    return success, return_code, output, expected_output, error_output
 
 
 def display_test(test_data) -> None:
