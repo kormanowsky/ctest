@@ -1,0 +1,5 @@
+ctestconfig.json
+venv/
+.idea/
+func_tests/
+main*.*
