@@ -198,7 +198,7 @@ def coverage(file_path, config) -> None:
 
 def main():
     print()
-    print(Colors.HEADER + Colors.BOLD + "CTest tester script")
+    print(Colors.HEADER + Colors.BOLD + "CTest tester script" + Colors.ENDC)
     print()
     file = get_file_name()
     file_path = dirname / file
