@@ -1,3 +1,4 @@
+#! python3
 """
 A script which builds and tests C programs
 Author: M. Kormanowsky
