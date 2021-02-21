@@ -79,12 +79,18 @@ def build(file_path, config) -> str:
     compiler_args.append(str(file_path))
     print(Colors.ENDC + "Building", file_path, "using", config["compiler"],
           "...")
-    process = Popen(compiler_args)
-    process.wait()
-    process.communicate()
-    print(Colors.OKGREEN + Colors.BOLD + "Built", file_path, "to",
-          executable_path)
-    return executable_path
+    process = run(compiler_args, capture_output=True)
+    output = process.stdout
+    error_output = process.stderr
+    if not output:
+        print(Colors.OKGREEN + Colors.BOLD + "Built", file_path, "to",
+              executable_path)
+        return executable_path
+    else:
+        print(Colors.FAIL + "Failed building", file_path + Colors.ENDC)
+        print(output)
+        print(error_output)
+        return None
 
 
 def test(executable_path, tests_path, config) -> None:
@@ -209,7 +215,7 @@ def main():
               file=stderr)
         run_tests = False
     executable_path = build(file_path, config)
-    if not run_tests:
+    if executable_path is None or not run_tests:
         return
     print()
     test(executable_path, tests_path, config)
