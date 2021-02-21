@@ -171,15 +171,16 @@ def main():
     print(Colors.HEADER + Colors.BOLD + "CTest tester script")
     print()
     file = get_file_name()
-    config = get_config()
     file_path = dirname / file
+    config = get_config()
     if not file_path.exists():
         print(Colors.FAIL + "Error: c source file does not exist!", file=stderr)
         return
-    tests_path = dirname / config["tests_dir"]
+    tests_path = file_path.parent / config["tests_dir"]
     run_tests = True
     if not tests_path.exists():
-        print(Colors.WARNING + "Warning: tests dir does not exist!",
+        print(Colors.WARNING + "Warning: tests directory", tests_path,
+              "does not exist!",
               file=stderr)
         run_tests = False
     executable_path = build(file_path, config)
