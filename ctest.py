@@ -11,6 +11,20 @@ from subprocess import Popen, run
 from sys import stderr
 from re import compile
 
+
+class Colors:
+    # https://stackoverflow.com/questions/287871/how-to-print-colored-text-to-the-terminal
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 dirname = Path.cwd()
 config_file_name = "ctestconfig.json"
 default_config = {
@@ -62,16 +76,18 @@ def build(file_path, config) -> str:
     compiler_args += config["args"].split()
     compiler_args += ["-o", executable_path]
     compiler_args.append(str(file_path))
-    print("Building", file_path, "using", config["compiler"], "...")
+    print(Colors.ENDC + "Building", file_path, "using", config["compiler"],
+          "...")
     process = Popen(compiler_args)
     process.wait()
     process.communicate()
-    print("Built", file_path, "to", executable_path)
+    print(Colors.OKGREEN + Colors.BOLD + "Built", file_path, "to",
+          executable_path)
     return executable_path
 
 
 def test(executable_path, tests_path, config):
-    print("Testing", executable_path, "...")
+    print(Colors.ENDC + "Testing", executable_path, "...")
     test_file_regex = compile(config["test_file_regex"])
     done_tests = []
     test_results = {
@@ -96,16 +112,16 @@ def test(executable_path, tests_path, config):
             done_tests.append(input_file)
             done_tests.append(output_file)
     print()
-    print("Positive tests:")
+    print(Colors.ENDC + "Positive tests:")
     for t in list(sorted(test_results["pos"], key=lambda i: i[0])):
         display_test(t)
     print()
     if test_results["neg"]:
-        print("Negative tests:")
+        print(Colors.ENDC + "Negative tests:")
         for t in list(sorted(test_results["neg"], key=lambda i: i[0])):
             display_test(t)
         print()
-    print("Tested", executable_path)
+    print(Colors.OKGREEN + Colors.BOLD + "Tested", executable_path)
 
 
 def single_test(executable_path, test_type, input_file, output_file, config):
@@ -128,37 +144,42 @@ def single_test(executable_path, test_type, input_file, output_file, config):
 def display_test(test_data):
     index, result = test_data
     success, code, output, expected_output, error_output = result
-    print("{}: {}".format(index, "passed" if success else "failed"))
+    print((Colors.OKGREEN if success else Colors.FAIL) + Colors.BOLD +
+          "{}: {}".format(index, "passed" if success else "failed"))
     if not success:
-        print("Exit code: {}".format(code))
-        print("Output:")
-        print(output)
-        print("Expected output:")
-        print(expected_output)
-        print("Error output:")
-        print(error_output)
+        print(Colors.ENDC + "Exit code: {}".format(code))
+        print(Colors.BOLD + "Output:")
+        print(Colors.ENDC + output)
+        print(Colors.BOLD + "Expected output:")
+        print(Colors.ENDC + expected_output)
+        print(Colors.BOLD + "Error output:")
+        print(Colors.ENDC + error_output)
 
 
 def coverage(file_path, config):
-    print("Running coverage for", file_path, "...")
+    print(Colors.ENDC + "Running coverage for", file_path, "...")
     coverage_args = [config["coverage_meter"]]
     coverage_args += config["coverage_meter_args"]
     coverage_args.append(str(file_path))
     run(coverage_args)
-    print("Ran coverage for", file_path)
+    print(Colors.OKGREEN + Colors.BOLD + "Ran coverage for", file_path)
 
 
 def main():
+    print()
+    print(Colors.HEADER + Colors.BOLD + "CTest tester script")
+    print()
     file = get_file_name()
     config = get_config()
     file_path = dirname / file
     if not file_path.exists():
-        print("Error: c source file does not exist!", file=stderr)
+        print(Colors.FAIL + "Error: c source file does not exist!", file=stderr)
         return
     tests_path = dirname / config["tests_dir"]
     run_tests = True
     if not tests_path.exists():
-        print("Warning: tests dir does not exist!", file=stderr)
+        print(Colors.WARNING + "Warning: tests dir does not exist!",
+              file=stderr)
         run_tests = False
     executable_path = build(file_path, config)
     if not run_tests:
@@ -167,6 +188,7 @@ def main():
     test(executable_path, tests_path, config)
     print()
     coverage(file_path, config)
+    print(Colors.OKGREEN + Colors.BOLD + "Done!" + Colors.ENDC)
 
 
 if __name__ == "__main__":
