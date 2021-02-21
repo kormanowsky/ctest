@@ -65,7 +65,7 @@ def get_config() -> dict:
     return config
 
 
-def build(file_path, config) -> str:
+def build(file_path, config):
     """
     Builds given c file using given config
     :param file_path: A path to file to build
@@ -82,15 +82,14 @@ def build(file_path, config) -> str:
     process = run(compiler_args, capture_output=True)
     output = process.stdout
     error_output = process.stderr
-    if not output:
+    if not process.returncode:
         print(Colors.OKGREEN + Colors.BOLD + "Built", file_path, "to",
               executable_path)
         return executable_path
     else:
-        print(Colors.FAIL + "Failed building", file_path + Colors.ENDC)
-        print(output)
-        print(error_output)
-        return None
+        print(Colors.FAIL + "Failed building", str(file_path) + Colors.ENDC)
+        print(output.decode(config["tests_encoding"]), file=stderr)
+        print(error_output.decode(config["tests_encoding"]), file=stderr)
 
 
 def test(executable_path, tests_path, config) -> None:
